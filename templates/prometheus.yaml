@@ -1,0 +1,23 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: {{ include "kogito-app.fullname" . }}-prometheus-operator
+spec:
+  serviceAccountName: {{ include "kogito-app.serviceAccountName" . }}
+  serviceMonitorSelector:
+    matchLabels: {{ include "kogito-app.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prometheus-operator-admin
+  namespace: kogito-helm
+subjects:
+- kind: ServiceAccount
+  name: {{ include "kogito-app.serviceAccountName" . }}
+  namespace: kogito-helm
+roleRef:
+  kind: ClusterRole
+  name: admin
+  apiGroup: rbac.authorization.k8s.io
